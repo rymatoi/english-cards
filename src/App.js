@@ -7,35 +7,46 @@ class App extends React.Component {
         super(props);
 
         this.state = {
-            id : 0,
-            word : "",
-            translate : "",
-            cards : []
+            id: 0,
+            word: "",
+            translate: "",
+            cards: []
         }
     }
 
     updateInput(key, value) {
         this.setState({
-            [key] : value
+            [key]: value
         })
     }
 
+    isCyrillic(text) {
+        return /[а-я]/i.test(text);
+    }
 
     addCard() {
+        const rus = this.state.word.slice();
+        const eng = this.state.translate.slice();
+        if (!rus || !eng) {
+            return
+        }
+        if  (!this.isCyrillic(rus) || this.isCyrillic(eng)){
+            return
+        }
         const newCard = {
-            id : 1 + this.state.id,
-            value : {
-                word : this.state.word.slice(),
-                translate : this.state.translate.slice(),
-                overturned : false
+            id: 1 + this.state.id,
+            value: {
+                word: rus,
+                translate: eng,
+                overturned: false
             }
         };
 
         this.setState({
-            id : newCard.id,
-            word : "",
-            translate : "",
-            cards : [...this.state.cards, newCard]
+            id: newCard.id,
+            word: "",
+            translate: "",
+            cards: [...this.state.cards, newCard]
         })
     }
 
@@ -55,18 +66,20 @@ class App extends React.Component {
         return (
             <div className="App">
                 <h1 className="app-title">Карточки английских слов</h1>
+                <p className="app-title" style={{'font-size': '15px'}}>Правила: в поле слева обязательно должно быть слово из русских букв, а справа - из английских.
+                Нельзя оставлять одно или оба поля ввода пустыми. Если все правила соблюдены, то карточка создастся.</p>
                 <div className="container">
                     Добавить карточку...
                     <br/>
                     <input
                         type="text"
-                        placeholder="Введите слово"
+                        placeholder="Русский перевод"
                         value={this.state.word}
                         onChange={(e) => this.updateInput("word", e.target.value)}
                     />
                     <input
                         type="text"
-                        placeholder="Введите слово"
+                        placeholder="Английский перевод"
                         value={this.state.translate}
                         onChange={(e) => this.updateInput("translate", e.target.value)}
                     />
@@ -78,7 +91,7 @@ class App extends React.Component {
                     </button>
                     <div>
                         {this.state.cards.map(card => {
-                            return(
+                            return (
                                 <div
                                     key={card.id}
                                     className={"card" + (card.value.overturned ? " overturned" : "")}
